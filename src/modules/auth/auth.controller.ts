@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthenticationGuard } from './local-authentication.guard';
 import { RequestWithUser } from './request-with-user.interface';
@@ -38,7 +50,10 @@ export class AuthController {
   @Get()
   auth(@Req() request: RequestWithUser) {
     const user = request.user;
-    user.password = undefined;
-    return user;
+    if (user.id) {
+      user.password = undefined;
+      return user;
+    }
+    throw new HttpException('You are not authorised', 401);
   }
 }
