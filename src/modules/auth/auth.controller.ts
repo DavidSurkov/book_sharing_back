@@ -47,7 +47,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthenticationGuard)
-  @Get()
+  @Get('check')
   auth(@Req() request: RequestWithUser) {
     const user = request.user;
     if (user.id) {
