@@ -6,7 +6,6 @@ import {
   HttpCode,
   Post,
   Req,
-  Res,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -15,7 +14,6 @@ import {
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthenticationGuard } from './local-authentication.guard';
 import { RequestWithUser } from './request-with-user.interface';
-import { Response } from 'express';
 import { JwtAuthenticationGuard } from './jwt-authentication.guard';
 import { AuthService } from './auth.service';
 
@@ -42,9 +40,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Post('logout')
-  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
-    return response.sendStatus(200);
+  async logOut(@Req() request: RequestWithUser) {
+    request.res.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
   }
 
   @UseGuards(JwtAuthenticationGuard)
