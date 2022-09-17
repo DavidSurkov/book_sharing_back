@@ -1,12 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Book } from './book.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   public id?: number;
 
-  @Column()
+  @Column({ type: 'varchar' })
   public name: string;
 
   @Column({ unique: true })
@@ -15,4 +16,7 @@ export class User {
   @Column()
   @Exclude()
   public password: string;
+
+  @OneToMany(() => Book, (book) => book.user)
+  books: Book[];
 }
