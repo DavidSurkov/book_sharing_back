@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto } from 'src/modules/auth/dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { PostgresErrorCode } from '../database/postgres-error-code.enum';
+import { PostgresErrorCode } from 'src/modules/database/postgres-error-code.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { TokenPayload } from './token-payload.interface';
-import { UsersService } from '../user/users.service';
+import { TokenPayload } from 'src/modules/auth/token-payload.interface';
+import { UsersService } from 'src/modules/user/users.service';
 
 const ROUNDS_OF_SALT = 10;
 

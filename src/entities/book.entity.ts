@@ -1,14 +1,31 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from './user.entity';
-import { Genre } from './genre.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from 'src/entities/user.entity';
+import { Genre } from 'src/entities/genre.entity';
+import { Poster } from 'src/files/poster/poster.entity';
+import { File } from 'src/files/book/file.entity';
 
 @Entity()
 export class Book {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({ name: 'image', type: 'bytea', nullable: false })
-  public image: Buffer;
+  @JoinColumn()
+  @OneToOne(() => Poster, { nullable: true, eager: true })
+  public poster: Poster;
+
+  @JoinColumn()
+  @OneToOne(() => File, { nullable: true, eager: true })
+  public file: File;
 
   @Column({ type: 'varchar', length: 255 })
   public title: string;

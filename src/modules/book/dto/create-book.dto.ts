@@ -1,16 +1,20 @@
-import { IsBase64, IsInt, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
+import { Genre } from 'src/entities/genre.entity';
+import { Transform } from 'class-transformer';
 
 export class CreateBookDto {
-  @IsBase64()
-  image: string;
-
   @IsString()
   title: string;
 
   @IsString()
   author: string;
 
-  @IsInt()
+  @Transform((object) => object.value.map((genre: string) => JSON.parse(genre)), { toClassOnly: true })
+  @IsArray()
+  genre: Genre[];
+
+  @Transform((value) => +value.value, { toClassOnly: true })
+  @IsNumber()
   year: number;
 
   @IsString()

@@ -11,11 +11,11 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import { LocalAuthenticationGuard } from './local-authentication.guard';
-import { RequestWithUser } from './request-with-user.interface';
-import { JwtAuthenticationGuard } from './jwt-authentication.guard';
-import { AuthService } from './auth.service';
+import { RegisterDto } from 'src/modules/auth/dto/register.dto';
+import { LocalAuthenticationGuard } from 'src/modules/auth/local-authentication.guard';
+import { RequestWithUser } from 'src/modules/auth/request-with-user.interface';
+import { JwtAuthenticationGuard } from 'src/modules/auth/jwt-authentication.guard';
+import { AuthService } from 'src/modules/auth/auth.service';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
