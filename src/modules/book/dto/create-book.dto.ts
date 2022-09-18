@@ -1,20 +1,23 @@
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString, IsUppercase } from 'class-validator';
 import { Genre } from 'src/entities/genre.entity';
 import { Transform } from 'class-transformer';
+import { validateGenre } from 'src/utils/validate-genre';
 
 export class CreateBookDto {
   @IsString()
   title: string;
 
-  @IsString()
+  @IsString({ context: IsUppercase })
+  @IsUppercase()
   author: string;
 
-  @Transform((object) => object.value.map((genre: string) => JSON.parse(genre)), { toClassOnly: true })
-  @IsArray()
+  @Transform(validateGenre, {
+    toClassOnly: true,
+  })
   genre: Genre[];
 
-  @Transform((value) => +value.value, { toClassOnly: true })
-  @IsNumber()
+  @Transform((value) => +value.value)
+  @IsNumber({ maxDecimalPlaces: 4 })
   year: number;
 
   @IsString()

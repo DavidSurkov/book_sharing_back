@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Req,
   UploadedFiles,
@@ -53,7 +54,7 @@ export class BookController {
 
   @Delete(':id')
   @UseGuards(JwtAuthenticationGuard)
-  async deleteBook(@Param('id') id: string): Promise<void> {
-    return this.bookService.deleteBook(+id);
+  async deleteBook(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.bookService.deleteBook(id);
   }
 }
