@@ -3,6 +3,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
   Param,
@@ -56,5 +57,10 @@ export class BookController {
   @UseGuards(JwtAuthenticationGuard)
   async deleteBook(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.bookService.deleteBook(id);
+  }
+
+  @Get('all')
+  async findAll() {
+    return this.bookService.findAll();
   }
 }
