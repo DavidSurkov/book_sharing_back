@@ -60,7 +60,7 @@ export class BookService {
   }
 
   async findOne(id: number): Promise<Book> {
-    return await this.bookRepository
+    const book = await this.bookRepository
       .createQueryBuilder('book')
       .leftJoinAndSelect('book.genres', 'genre')
       .leftJoinAndSelect('book.file', 'file')
@@ -68,5 +68,9 @@ export class BookService {
       .leftJoinAndSelect('book.user', 'user')
       .where('book.id = :id', { id: id })
       .getOne();
+    if (!book) {
+      throw new HttpException(`Book with id ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    return book;
   }
 }
