@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Book } from './book.entity';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 @Entity()
 export class User {
@@ -13,10 +14,12 @@ export class User {
   @Column({ unique: true })
   public email: string;
 
+  @ApiHideProperty()
   @Column()
   @Exclude()
   public password: string;
 
+  @ApiHideProperty()
   @OneToMany(() => Book, (book) => book.user)
   books: Book[];
 }

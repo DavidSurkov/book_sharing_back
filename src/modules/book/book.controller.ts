@@ -24,7 +24,9 @@ import { Book } from 'src/entities/book.entity';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { multerOptions } from 'src/files/config/multer.options';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Book')
 @Controller('book')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BookController {
@@ -60,6 +62,7 @@ export class BookController {
   }
 
   @Get('all')
+  @UseGuards(JwtAuthenticationGuard)
   async findAll() {
     return this.bookService.findAll();
   }

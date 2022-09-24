@@ -16,7 +16,9 @@ import { LocalAuthenticationGuard } from 'src/modules/auth/local-authentication.
 import { RequestWithUser } from 'src/modules/auth/request-with-user.interface';
 import { JwtAuthenticationGuard } from 'src/modules/auth/jwt-authentication.guard';
 import { AuthService } from 'src/modules/auth/auth.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authorization')
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {

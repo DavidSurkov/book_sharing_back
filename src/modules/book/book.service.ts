@@ -44,6 +44,8 @@ export class BookService {
       await this.bookRepository.delete({ id });
       await this.fileService.deleteFile(fileId);
       await this.posterService.deletePoster(posterId);
+    } else {
+      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
     }
   }
 
