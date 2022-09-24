@@ -58,12 +58,18 @@ export class BookController {
   @Delete(':id')
   @UseGuards(JwtAuthenticationGuard)
   async deleteBook(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.bookService.deleteBook(id);
+    return await this.bookService.deleteBook(id);
   }
 
   @Get('all')
   @UseGuards(JwtAuthenticationGuard)
   async findAll() {
     return this.bookService.findAll();
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthenticationGuard)
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Book> {
+    return await this.bookService.findOne(id);
   }
 }

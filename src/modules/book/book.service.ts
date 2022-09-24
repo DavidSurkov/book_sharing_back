@@ -58,4 +58,15 @@ export class BookService {
       .orderBy('book.title', 'DESC')
       .getMany();
   }
+
+  async findOne(id: number): Promise<Book> {
+    return await this.bookRepository
+      .createQueryBuilder('book')
+      .leftJoinAndSelect('book.genres', 'genre')
+      .leftJoinAndSelect('book.file', 'file')
+      .leftJoinAndSelect('book.poster', 'poster')
+      .leftJoinAndSelect('book.user', 'user')
+      .where('book.id = :id', { id: id })
+      .getOne();
+  }
 }
