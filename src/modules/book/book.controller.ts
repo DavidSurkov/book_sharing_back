@@ -16,10 +16,10 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtAuthenticationGuard } from 'src/modules/auth/jwt-authentication.guard';
+import { JwtAuthenticationGuard } from 'src/modules/auth/guard/jwt-authentication.guard';
 import { BookService } from 'src/modules/book/book.service';
 import { CreateBookDto } from 'src/modules/book/dto/create-book.dto';
-import { RequestWithUser } from 'src/modules/auth/request-with-user.interface';
+import { RequestWithUser } from 'src/modules/auth/interface/request-with-user.interface';
 import { Book } from 'src/entities/book.entity';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';

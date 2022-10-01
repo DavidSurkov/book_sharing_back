@@ -15,6 +15,11 @@ export class User {
   public email: string;
 
   @ApiHideProperty()
+  @Column({ nullable: true })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
+
+  @ApiHideProperty()
   @Column()
   @Exclude()
   public password: string;
