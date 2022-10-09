@@ -55,7 +55,7 @@ export class BookService {
       .leftJoinAndSelect('book.genres', 'genre')
       .leftJoinAndSelect('book.file', 'file')
       .leftJoinAndSelect('book.poster', 'poster')
-      .orderBy('book.title', 'DESC')
+      .orderBy('book.title', 'ASC')
       .getMany();
   }
 
