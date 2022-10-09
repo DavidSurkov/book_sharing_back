@@ -37,7 +37,7 @@ export class BookService {
   }
 
   async deleteBook(id: number): Promise<void> {
-    const book = await this.bookRepository.findOne({ where: { id } });
+    const book = await this.findOne(id);
     const fileId = book.file.id;
     const posterId = book.poster.id;
     if (book && fileId && posterId) {
