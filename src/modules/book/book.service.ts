@@ -79,11 +79,11 @@ export class BookService {
     return await this.bookRepository
       .createQueryBuilder('book')
       .leftJoinAndSelect('book.genres', 'genre')
-      .where('book.title = NULL OR book.title = :title', {
-        title: data.title,
+      .where('book.title = NULL OR book.title like :title', {
+        title: `${data.title}%`,
       })
-      .andWhere('book.author = NULL OR book.author = :author', { author: data.author })
-      .andWhere('book.year = NULL OR book.year = :year', { year: data.year })
+      .andWhere('book.author = NULL OR book.author like :author', { author: `${data.author}%` })
+      .andWhere('book.year = NULL OR book.year like :year', { year: `${data.year}%` })
       .getMany();
   }
 }
