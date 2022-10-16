@@ -88,6 +88,7 @@ export class BookService {
     if (data.year) {
       book.andWhere('book.year like :year OR book.year = NULL', { year: `${data.year}%` });
     }
+    book.leftJoinAndSelect('book.poster', 'poster');
     return await book.getMany();
   }
 }
