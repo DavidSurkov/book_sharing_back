@@ -83,7 +83,7 @@ export class BookService {
         title: data.title,
       })
       .andWhere('book.author = NULL OR book.author = :author', { author: data.author })
-      .andWhere('book.year = NULL OR book.year = :year', { year: +data.year })
+      .andWhere('book.year = NULL OR book.year = :year', { year: data.year })
       .getMany();
   }
 }
