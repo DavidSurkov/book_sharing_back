@@ -76,14 +76,18 @@ export class BookService {
   }
 
   async searchBy(data: SearchBookDto): Promise<Book[]> {
-    return await this.bookRepository
-      .createQueryBuilder('book')
-      .leftJoinAndSelect('book.genres', 'genre')
-      .where('book.title like :title OR book.title = NULL', {
+    const book = await this.bookRepository.createQueryBuilder('book').leftJoinAndSelect('book.genres', 'genre');
+    if (data.title) {
+      book.andWhere('book.title like :title OR book.title = NULL', {
         title: `${data.title}%`,
-      })
-      .andWhere('book.author like :author OR book.author = NULL', { author: `${data.author}%` })
-      .andWhere('book.year like :year OR book.year = NULL', { year: `${data.year}%` })
-      .getMany();
+      });
+    }
+    if (data.author) {
+      book.andWhere('book.author like :author OR book.author = NULL', { author: `${data.author}%` });
+    }
+    if (data.year) {
+      book.andWhere('book.year like :year OR book.year = NULL', { year: `${data.year}%` });
+    }
+    return await book.getMany();
   }
 }
