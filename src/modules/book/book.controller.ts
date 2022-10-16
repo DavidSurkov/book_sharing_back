@@ -9,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UploadedFiles,
   UseGuards,
@@ -25,6 +26,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { multerOptions } from 'src/files/config/multer.options';
 import { ApiTags } from '@nestjs/swagger';
+import { SearchBookDto } from './dto/search-book.dto';
 
 @ApiTags('Book')
 @Controller('book')
@@ -65,6 +67,12 @@ export class BookController {
   @UseGuards(JwtAuthenticationGuard)
   async findAll() {
     return this.bookService.findAll();
+  }
+
+  @Get('search')
+  @UseGuards(JwtAuthenticationGuard)
+  async searchBy(@Query() params: SearchBookDto): Promise<Book[]> {
+    return this.bookService.searchBy(params);
   }
 
   @Get(':id')

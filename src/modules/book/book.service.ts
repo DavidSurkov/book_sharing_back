@@ -6,6 +6,7 @@ import { CreateBookDto } from 'src/modules/book/dto/create-book.dto';
 import { User } from 'src/entities/user.entity';
 import { PosterService } from 'src/files/poster/poster.service';
 import { FileService } from 'src/files/book/file.service';
+import { SearchBookDto } from './dto/search-book.dto';
 
 @Injectable()
 export class BookService {
@@ -72,5 +73,17 @@ export class BookService {
       throw new HttpException(`Book with id ${id} not found`, HttpStatus.NOT_FOUND);
     }
     return book;
+  }
+
+  async searchBy(data: SearchBookDto): Promise<Book[]> {
+    return await this.bookRepository
+      .createQueryBuilder('book')
+      .leftJoinAndSelect('book.genres', 'genre')
+      .where('book.title = NULL OR book.title = :title', {
+        title: data.title,
+      })
+      .andWhere('book.author = NULL OR book.author = :author', { author: data.author })
+      .andWhere('book.year = NULL OR book.year = :year', { year: +data.year })
+      .getMany();
   }
 }
