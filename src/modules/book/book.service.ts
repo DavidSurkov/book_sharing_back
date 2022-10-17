@@ -78,15 +78,18 @@ export class BookService {
   async searchBy(data: SearchBookDto): Promise<Book[]> {
     const book = await this.bookRepository.createQueryBuilder('book').leftJoinAndSelect('book.genres', 'genre');
     if (data.title) {
-      book.andWhere('book.title like :title OR book.title = NULL', {
+      book.andWhere('book.title like :title', {
         title: `${data.title}%`,
       });
     }
     if (data.author) {
-      book.andWhere('book.author like :author OR book.author = NULL', { author: `${data.author}%` });
+      book.andWhere('book.author like :author', { author: `${data.author}%` });
     }
     if (data.year) {
-      book.andWhere('book.year like :year OR book.year = NULL', { year: `${data.year}%` });
+      book.andWhere('book.year = :year', { year: data.year });
+    }
+    if (data.genre) {
+      book.andWhere('genre.id = :id', { id: data.genre });
     }
     book.leftJoinAndSelect('book.poster', 'poster');
     return await book.getMany();
