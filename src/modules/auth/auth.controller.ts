@@ -1,59 +1,72 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpCode,
-  HttpException,
   Post,
   Req,
-  Res,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import { LocalAuthenticationGuard } from './local-authentication.guard';
-import { RequestWithUser } from './request-with-user.interface';
-import { Response } from 'express';
-import { JwtAuthenticationGuard } from './jwt-authentication.guard';
-import { AuthService } from './auth.service';
+import { RegisterDto } from 'src/modules/auth/dto/register.dto';
+import { LocalAuthenticationGuard } from 'src/modules/auth/guard/local-authentication.guard';
+import { RequestWithUser } from 'src/modules/auth/interface/request-with-user.interface';
+import { JwtAuthenticationGuard } from 'src/modules/auth/guard/jwt-authentication.guard';
+import { AuthService } from 'src/modules/auth/auth.service';
+import { ApiTags } from '@nestjs/swagger';
+import { UsersService } from 'src/modules/user/users.service';
+import { JwtRefreshGuard } from 'src/modules/auth/guard/jwt-refresh.guard';
+import { User } from 'src/entities/user.entity';
 
+@ApiTags('Authorization')
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly usersService: UsersService) {}
 
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post('register')
-  async register(@Body() registrationData: RegisterDto) {
+  async register(@Body() registrationData: RegisterDto): Promise<User> {
     return this.authService.register(registrationData);
   }
 
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('login')
-  async logIn(@Req() request: RequestWithUser, @Res() response: Response) {
+  async logIn(@Req() request: RequestWithUser): Promise<User> {
     const { user } = request;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    response.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
-    return response.send(user);
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(user.id);
+    const { cookie: refreshTokenCookie, token: refreshToken } = this.authService.getCookieWithJwtRefreshToken(user.id);
+
+    await this.usersService.setCurrentRefreshToken(refreshToken, user.id);
+
+    request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+    return user;
   }
 
   @UseGuards(JwtAuthenticationGuard)
   @Post('logout')
-  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
-    return response.sendStatus(200);
+  async logOut(@Req() request: RequestWithUser): Promise<void> {
+    await this.usersService.removeRefreshToken(request.user.id);
+
+    request.res.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
   }
 
   @UseGuards(JwtAuthenticationGuard)
   @Get('check')
-  auth(@Req() request: RequestWithUser) {
-    const user = request.user;
-    if (user.id) {
-      user.password = undefined;
-      return user;
-    }
-    throw new HttpException('You are not authorised', 401);
+  auth(@Req() request: RequestWithUser): User {
+    return request.user;
+  }
+
+  @UseGuards(JwtRefreshGuard)
+  @Get('refresh')
+  refresh(@Req() request: RequestWithUser): User {
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(request.user.id);
+
+    request.res.setHeader('Set-Cookie', accessTokenCookie);
+    return request.user;
   }
 }
