@@ -11,6 +11,7 @@ import {
   Post,
   Query,
   Req,
+  StreamableFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -27,12 +28,13 @@ import { Express } from 'express';
 import { multerOptions } from 'src/files/config/multer.options';
 import { ApiTags } from '@nestjs/swagger';
 import { SearchBookDto } from './dto/search-book.dto';
+import { PosterService } from '../../files/poster/poster.service';
 
 @ApiTags('Book')
 @Controller('book')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookService: BookService, private readonly posterService: PosterService) {}
 
   @Post()
   @UseGuards(JwtAuthenticationGuard)
@@ -79,5 +81,10 @@ export class BookController {
   @UseGuards(JwtAuthenticationGuard)
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Book> {
     return await this.bookService.findOne(id);
+  }
+
+  @Get('poster/:id')
+  async findPoster(@Param('id', ParseIntPipe) id: number) {
+    return new StreamableFile(await this.posterService.findById(id));
   }
 }

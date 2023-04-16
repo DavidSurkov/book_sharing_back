@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { PosterService } from 'src/files/poster/poster.service';
 import { FileService } from 'src/files/book/file.service';
 import { SearchBookDto } from './dto/search-book.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BookService {
@@ -15,6 +16,7 @@ export class BookService {
     private readonly bookRepository: Repository<Book>,
     private readonly posterService: PosterService,
     private readonly fileService: FileService,
+    private readonly configService: ConfigService,
   ) {}
 
   async createBook(
@@ -51,17 +53,23 @@ export class BookService {
   }
 
   async findAll(): Promise<Book[]> {
-    return await this.bookRepository
+    const books = await this.bookRepository
       .createQueryBuilder('book')
       .leftJoinAndSelect('book.genres', 'genre')
       .leftJoinAndSelect('book.file', 'file')
       .leftJoinAndSelect('book.poster', 'poster')
       .orderBy('book.title', 'ASC')
       .getMany();
+    return books.map((book) => {
+      return {
+        ...book,
+        poster: { ...book.poster, url: this.updateUrlToGetFile(book.poster.url, book.poster.id) },
+      };
+    });
   }
 
   async findOne(id: number): Promise<Book> {
-    const book = await this.bookRepository
+    const foundBook = await this.bookRepository
       .createQueryBuilder('book')
       .leftJoinAndSelect('book.genres', 'genre')
       .leftJoinAndSelect('book.file', 'file')
@@ -69,29 +77,48 @@ export class BookService {
       .leftJoinAndSelect('book.user', 'user')
       .where('book.id = :id', { id: id })
       .getOne();
-    if (!book) {
+    if (!foundBook) {
       throw new HttpException(`Book with id ${id} not found`, HttpStatus.NOT_FOUND);
     }
-    return book;
+    return {
+      ...foundBook,
+      poster: { ...foundBook.poster, url: this.updateUrlToGetFile(foundBook.poster.url, foundBook.poster.id) },
+    };
   }
 
   async searchBy(data: SearchBookDto): Promise<Book[]> {
-    const book = await this.bookRepository.createQueryBuilder('book').leftJoinAndSelect('book.genres', 'genre');
+    const builder = await this.bookRepository.createQueryBuilder('book').leftJoinAndSelect('book.genres', 'genre');
     if (data.title) {
-      book.andWhere('book.title like :title', {
+      builder.andWhere('book.title like :title', {
         title: `${data.title}%`,
       });
     }
     if (data.author) {
-      book.andWhere('book.author like :author', { author: `${data.author}%` });
+      builder.andWhere('book.author like :author', { author: `${data.author}%` });
     }
     if (data.year) {
-      book.andWhere('book.year = :year', { year: data.year });
+      builder.andWhere('book.year = :year', { year: data.year });
     }
     if (data.genre) {
-      book.andWhere('genre.id = :id', { id: data.genre });
+      builder.andWhere('genre.id = :id', { id: data.genre });
     }
-    book.leftJoinAndSelect('book.poster', 'poster');
-    return await book.getMany();
+    builder.leftJoinAndSelect('book.poster', 'poster');
+    const books = await builder.getMany();
+    return books.map((book) => {
+      return {
+        ...book,
+        poster: { ...book.poster, url: this.updateUrlToGetFile(book.poster.url, book.poster.id) },
+      };
+    });
+  }
+
+  private updateUrlToGetFile(url: string, id: number): string {
+    const fileType = url.split('/')[0];
+    if (fileType === 'posters') {
+      return `${this.configService.get('APP_URL')}/book/poster/${id}`;
+    }
+    if (fileType === 'books') {
+      return `${this.configService.get('APP_URL')}/book/file/${id}`;
+    }
   }
 }

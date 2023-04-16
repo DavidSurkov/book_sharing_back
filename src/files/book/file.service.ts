@@ -5,6 +5,7 @@ import { File } from 'src/files/book/file.entity';
 import { S3 } from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
 
 @Injectable()
 export class FileService {
@@ -15,18 +16,21 @@ export class FileService {
   ) {}
 
   async uploadFile(dataBuffer: Buffer, filename: string): Promise<File> {
-    const s3 = new S3();
+    /*const s3 = new S3();
     const uploadResult = await s3
       .upload({
         Bucket: this.configService.get('AWS_PUBLIC_POSTERS_BUCKET_NAME'),
         Body: dataBuffer,
         Key: `${this.configService.get('AWS_BOOK_FOLDER')}/${uuid()}-${filename}`,
       })
-      .promise();
+      .promise();*/
+    const newFilename = `${uuid()}-${filename}`;
+    const filePath = `${this.configService.get('BOOK_DIRECTORY')}/${newFilename}`;
+    await fs.promises.writeFile(filePath, dataBuffer);
 
     const newBook = this.fileRepository.create({
-      key: uploadResult.Key,
-      url: uploadResult.Location,
+      key: newFilename,
+      url: filePath,
     });
     await this.fileRepository.save(newBook);
     return newBook;
